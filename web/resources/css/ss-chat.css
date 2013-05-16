@@ -1,0 +1,27 @@
+@CHARSET "UTF-8";
+
+body, .page-wrap {
+    background-color: #2C2C2C;
+}
+#chatWindow {
+    height: 500px;
+    background-color: #111;
+    color: #999;
+    padding-top: 26px;
+}
+#chats {
+    height: 500px;
+    overflow: scroll;
+}
+#chatConsole {
+    background-color: #111;
+    color: #999;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.control-label {
+    color: #999;
+}
+#chatMessage {
+    width: 100%;
+}

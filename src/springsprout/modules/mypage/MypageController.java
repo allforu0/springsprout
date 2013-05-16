@@ -25,4 +25,5 @@ public class MypageController {
 		member.makeAvatar();
 		model.addAttribute(member);
     }
+	
 }

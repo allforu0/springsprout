@@ -9,6 +9,7 @@ import springsprout.domain.Member;
 import springsprout.domain.Study;
 import springsprout.domain.enumeration.StudyStatus;
 import springsprout.modules.member.MemberRepository;
+import springsprout.modules.study.meeting.MeetingService;
 import springsprout.modules.study.support.StudyContainer;
 import springsprout.modules.study.support.StudyCriteria;
 import springsprout.modules.study.support.StudyIndexInfo;
@@ -17,9 +18,7 @@ import springsprout.service.notification.message.StudyMailMessage;
 import springsprout.service.security.SecurityService;
 
 import javax.annotation.Resource;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service("studyService")
 @Transactional
@@ -28,6 +27,8 @@ public class StudyServiceImpl implements StudyService {
 	@Autowired StudyRepository repository;
 	@Autowired SecurityService securityService;
     @Autowired MemberRepository memberRepository;
+	@Autowired MeetingService meetingService;
+
     @Resource NotificationService unifiedNotificationService;
     
 	public void addStudy(final Study study) {
@@ -42,6 +43,8 @@ public class StudyServiceImpl implements StudyService {
 	}
 
 	public void addCurrentMember(final Study study) {
+
+
 		final Member currentMember = securityService.getPersistentMember();
 		study.addMember(currentMember);
 	}
@@ -71,7 +74,29 @@ public class StudyServiceImpl implements StudyService {
 	}
 
     public List<Study> findActiveStudies(int rows) {
-        return repository.findActiveStudies(rows);
+		List<Study> studies = repository.findActiveStudies(rows);
+		for(Study study : studies){
+			study.setRecentMeeting(meetingService.findRecentMeeting(study.getId()));
+		}
+
+        // order by recent meeting
+        Collections.sort(studies, new Comparator<Study>() {
+            @Override
+            public int compare(Study study, Study otherStudy) {
+				if(study.getMeetings() == null){
+					return 1;
+				}else if(otherStudy.getRecentMeeting() == null){
+					return -1;
+				} 
+				if (study.getRecentMeeting() == null) return 1;
+				if (study.getRecentMeeting().getCloseDate() == null) return 1;
+				if (otherStudy.getRecentMeeting().getOpenDate() == null) return -1;
+                return otherStudy.getRecentMeeting().getOpenDate().compareTo(study.getRecentMeeting().getCloseDate());
+            }
+        });
+
+
+		return studies;
     }
 
 	public List<Study> findPastStudies() {

@@ -11,6 +11,7 @@ import org.mockito.stubbing.Answer;
 import springsprout.domain.Graffiti;
 import springsprout.domain.Member;
 import springsprout.modules.main.support.GraffitiDTO;
+import springsprout.modules.member.MemberService;
 import springsprout.service.security.SecurityService;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class GraffitiServiceTest {
 	GraffitiService graffitiService;
 	@Mock SecurityService securityService;
 	@Mock GraffitiRepository graffitiRepository;
+	@Mock MemberService memberService;
 	
 	Calendar cal;
     List<GraffitiDTO> gdtoList;
@@ -36,6 +38,7 @@ public class GraffitiServiceTest {
 		graffitiService = new GraffitiService();
 		graffitiService.securityService = securityService;
 		graffitiService.graffitiRepository = graffitiRepository;
+		graffitiService.memberService = memberService;
 		
 		cal = Calendar.getInstance();
         gdtoList = new ArrayList<GraffitiDTO>();
@@ -96,8 +99,8 @@ public class GraffitiServiceTest {
         gdtoList.add(gdto);
         gdtoList.add(gdto1);
         gdtoList = graffitiService.formatWrittenDate(gdtoList);
-        assertThat(gdtoList.get(0).getFormatedDate() , is("11/25 01:24:55"));
-        assertThat(gdtoList.get(1).getFormatedDate() , is("11/25 23:24:55"));        
+        assertThat(gdtoList.get(0).getFormattedDate() , is("2009.11.25 01:24:55"));
+        assertThat(gdtoList.get(1).getFormattedDate() , is("2009.11.25 23:24:55"));
 	}
 
 }
