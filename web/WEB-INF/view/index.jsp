@@ -2,7 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="page" tagdir="/WEB-INF/tags/page"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
@@ -36,9 +35,9 @@
                 <div id="guides">
                     <h2>봄싹 이용 가이드</h2>
                     <ul id="guideList">
-                        <li><a href="http://wiki.springsprout.org/Home" target="_blank">봄싹은?</a></li>
-                        <li><a href="http://wiki.springsprout.org/Home" target="_blank">봄싹의 목적은?</a></li>
-                        <li><a href="http://wiki.springsprout.org/Home" target="_blank">봄싹 스터디에 참여하려면?</a></li>
+                        <li><a href="http://wiki.springsprout.org/display/META/Home" target="_blank">봄싹은?</a></li>
+                        <li><a href="http://wiki.springsprout.org/display/META/Home" target="_blank">봄싹의 목적은?</a></li>
+                        <li><a href="http://wiki.springsprout.org/display/META/Home" target="_blank">봄싹 스터디에 참여하려면?</a></li>
                     </ul>
                 </div>
                 <div id="links">

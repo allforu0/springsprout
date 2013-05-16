@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<!-- ============================================================= -->
+	<!--  AOP                                                          -->
+	<!-- ============================================================= -->                      
+	<aop:aspectj-autoproxy />
+
+	<!-- ============================================================= -->
+	<!--  Component Scan                                               -->
+	<!-- ============================================================= -->
+	<context:component-scan base-package="springsprout">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+
+	<!-- ============================================================= -->
+	<!--  Email                                                        -->
+	<!-- ============================================================= -->
+    <bean id="sendMailService" class="springsprout.service.notification.mail.SendMailService">
+        <constructor-arg ref="mainMailSender"/>
+    </bean>
+
+	<bean id="mainMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="mail.springsprout.org" />
+		<property name="username" value="#{appProperties['mail.username']}" />
+		<property name="password" value="#{appProperties['mail.password']}" />
+		<property name="protocol" value="smtp" />
+		<property name="port" value="25" />
+	</bean>
+	
+	<!-- ============================================================= -->
+	<!--  Messanger                                                    -->
+	<!-- ============================================================= -->
+	<bean id="jabberService" class="springsprout.service.notification.jabber.JabberService">
+		<constructor-arg name="username" value="#{appProperties['gmail.username']}"/>
+		<constructor-arg name="password" value="#{appProperties['gmail.password']}"/>
+		<constructor-arg name="runOnStart" value="#{appProperties['jabber.runOnStart']}"/>
+	</bean>
+	
+	<bean id="gTalkConfiguration" class="org.jivesoftware.smack.ConnectionConfiguration">
+		<constructor-arg name="host" value="talk.google.com" />
+		<constructor-arg name="port" value="5222" />
+		<constructor-arg name="serviceName" value="gmail.com" />
+	</bean>
+	
+	<bean class="org.jivesoftware.smack.XMPPConnection">
+		<constructor-arg ref="gTalkConfiguration"/>
+	</bean>
+	
+	<bean class="springsprout.service.notification.jabber.PacketListenerRepository">
+		<constructor-arg>
+			<list>
+				<bean class="springsprout.service.notification.jabber.StudyListener"/>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<!-- ============================================================= -->
+	<!--  Twitter                                                      -->
+	<!-- ============================================================= -->
+    <bean id="twitterService" class="springsprout.service.notification.twitter.TwitterService">
+        <constructor-arg ref="mainTwitter" />
+    </bean>
+
+	<bean id="mainTwitter" class="twitter4j.Twitter">
+		<constructor-arg name="screenName" value="#{appProperties['twitter.username']}" />
+        <constructor-arg name="password" value="#{appProperties['twitter.password']}" />
+	</bean>
+
+    <bean id="devTermTwitterService" class="springsprout.service.notification.twitter.TwitterService">
+        <constructor-arg ref="devTermTwitter"/>
+    </bean>
+
+    <bean id="devTermTwitter" class="twitter4j.Twitter">
+		<constructor-arg name="screenName" value="#{appProperties['devterm.twitter.username']}" />
+        <constructor-arg name="password" value="#{appProperties['devterm.twitter.password']}" />
+	</bean>
+    
+    <!-- ============================================================= -->
+    <!--  Notification                                                 -->
+    <!-- ============================================================= -->
+    <bean id="unifiedNotificationService" class="springsprout.service.notification.UnifiedNotificationService"
+            p:jabberService-ref="jabberService"
+            p:sendMailService-ref="sendMailService"
+            p:twitterService-ref="twitterService" />
+
+    <!-- ============================================================= -->
+    <!--  Spring 3.0 @Task @Async                                      -->
+    <!-- ============================================================= -->
+    <task:annotation-driven executor="myExecutor" scheduler="myScheduler"/>
+
+    <task:executor id="myExecutor" pool-size="10" />
+
+    <task:scheduler id="myScheduler" pool-size="10" />
+
+    <!-- 리소스 번들 -->
+    <bean id="messageSource"
+        class="org.springframework.context.support.ResourceBundleMessageSource">
+	    <property name="basenames">
+	      <list>
+	          <value>org.springframework.security.messages</value>              
+	      </list>
+	    </property>
+	</bean>
+	
+	<!-- 리소스 번들 엑세서 -->
+    <bean id="messageSourceAccessor"
+    	class="org.springframework.context.support.MessageSourceAccessor">
+    	<constructor-arg ref="messageSource"/>
+    </bean>
+
+    <!-- ============================================================= -->
+    <!--  Google Calendar Service                                      -->
+    <!-- =============================================================
+    <bean id="googleCalendarService" class="springsprout.modules.calendar.GoogleCalendarServiceImpl">
+        <property name="title" value="${calendar.title}"/>
+        <property name="username" value="${calendar.username}"/>
+        <property name="password" value="${calendar.password}"/>
+    </bean>
+    -->
+
+    <!-- ============================================================= -->
+    <!--  Exception Template Service                                   -->
+    <!-- ============================================================= -->
+    <bean id="exceptionTemplate" class="springsprout.common.exception.TransactionalAsyncExceptionTemplate">
+        <property name="asyncTaskExecutor" ref="myExecutor"/>
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+
+    <!-- ============================================================= -->
+    <!--  FreemarkerConfiguration for E-Mail Template                  -->
+    <!-- ============================================================= -->
+    <bean class="org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean">
+        <property name="templateLoaderPath" value="/WEB-INF/freemarker/"/>
+        <property name="defaultEncoding" value="UTF-8" />
+    </bean>
+    
+    <!-- ============================================================= -->
+    <!--  VelocityConfiguration for E-Mail Template                  -->
+    <!-- ============================================================= -->
+    <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+    	<property name="resourceLoaderPath" value="/WEB-INF/velocity/"/>
+    </bean>
+</beans>

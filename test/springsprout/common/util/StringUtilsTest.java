@@ -1,7 +1,10 @@
 package springsprout.common.util;
 
-import org.junit.Ignore;
+import org.hamcrest.Matcher;
 import org.junit.Test;
+
+import java.util.Calendar;
+import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -15,7 +18,6 @@ import static org.junit.Assert.assertThat;
 public class StringUtilsTest {
 
     @Test
-    @Ignore
     public void testCutBytes() throws Exception {
         String result = StringUtils.cutBytes("The emergence of the XML-based Simple Object Access Protocol (SOAP) as a widely accepted, platform-agnostic standard for RMI, and widespread support for web services.", 150);
         assertThat(result.getBytes().length, is(150));
@@ -29,4 +31,13 @@ public class StringUtilsTest {
         result = StringUtils.cutBytes("sss", 150);
         assertThat(result.getBytes().length, is(3));
     }
+
+	@Test
+	public void testConvertDate2String() throws Exception{
+		Calendar cal = Calendar.getInstance();
+		cal.set(2012,Calendar.FEBRUARY,10,0,0,0);
+		assertThat(StringUtils.convertDate2String(cal.getTime()), is("02.10 00:00:00"));
+		cal.set(2011,Calendar.FEBRUARY,10,0,0,0);
+		assertThat(StringUtils.convertDate2String(cal.getTime()), is("2011.02.10 00:00:00"));
+	}
 }

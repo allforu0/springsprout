@@ -1,7 +1,7 @@
 package springsprout.service.acl.utils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.*;
@@ -13,7 +13,7 @@ import java.util.List;
 
 public class AclSecurityUtilImpl implements AclSecurityUtil {
 
-	private static Log logger = LogFactory.getLog(AclSecurityUtil.class);
+	private static Logger logger = LoggerFactory.getLogger(AclSecurityUtil.class);
 
 	private MutableAclService mutableAclService;
 

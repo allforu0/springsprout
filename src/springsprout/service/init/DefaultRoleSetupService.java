@@ -2,8 +2,12 @@ package springsprout.service.init;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+
 import springsprout.domain.Member;
 import springsprout.domain.Role;
 import springsprout.domain.enumeration.MemberStatus;
@@ -11,21 +15,35 @@ import springsprout.modules.member.MemberRepository;
 import springsprout.modules.role.RoleRepository;
 
 /**
- * Created by IntelliJ IDEA.
- * User: whiteship
- * Date: 2010. 4. 21
- * Time: 오후 11:19:43
+ * 애플리케이션 기본 데이터 등록 처리 서비스
+ * 
+ * @since 2010.04.21
+ * @author whiteship
+ * @author arawn
  */
-@Service
 @Transactional
 public class DefaultRoleSetupService {
 
+	@Autowired PlatformTransactionManager transactionManager;
     @Autowired MemberRepository memberRepository;
     @Autowired RoleRepository roleRepository;
     @Autowired PasswordEncoder passwordEncoder;
 
     public static final String DEFAULT_MEMBER_EMAIL = "springsprout@springsprout.org";
     public static final String DEFAULT_ADMIN_EMAIL = "s2cadmin@springsprout.org";
+    
+	public void setup() {
+    	TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+    	transactionTemplate.afterPropertiesSet();
+    	
+    	transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+			@Override
+			protected void doInTransactionWithoutResult(TransactionStatus status) {
+		    	addDefaultRoles();
+		    	addDefaultUsers();
+			}
+		});
+    }    
 
     /**
      * Add Admin, Member Role
